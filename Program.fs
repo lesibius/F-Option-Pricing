@@ -5,7 +5,6 @@
 open System
 open MathNet.Numerics.Distributions
 open MathNet.Numerics.Statistics
-//Charting doesn't work
 open FSharp.Charting
 open FSharp.Charting.ChartTypes
 open System.Drawing
@@ -18,9 +17,13 @@ open System.Windows.Forms
     
 let printoptionvalue optionName optionvalue =
     printfn "Value of %s" optionName
-    printfn "%A" optionvalue
+    printfn "$%.2f" optionvalue
     printfn ""
 
+
+//Divide period to use in asian options
+let divideperiod nPeriod nDivision =
+    List.init (nDivision-1) (fun x -> (x+1) * nPeriod / nDivision)
 
 (****************************************************************************************************************)
 (*                                              Plot Functions                                                  *)
@@ -49,6 +52,10 @@ The first argument is a high order function (generally obtained by currying) tha
 let payoff payoffFun (assetPath:list<float>) = 
     payoffFun assetPath
 
+//Underlying payoff
+let underlyingpayoff = fun assetPath -> (assetPath |> List.last) - (assetPath |> List.item(0))
+
+
 //Plain vanilla option
 let callpayoff strike = fun price -> max (price - strike) 0.0
 let putpayoff strike = fun price -> max (strike - price) 0.0
@@ -57,7 +64,13 @@ let putpayoff strike = fun price -> max (strike - price) 0.0
 let europeanoptionpayoff payoffFun = fun assetPath -> assetPath |> List.last |> payoffFun
 
 //Asian options
-//let asiaarithmeticpayoff payoffFun strike = fun assetPath -> assetPath |> List.average |> payoffFun
+//These options requires both the number of divisions (e.g. average over 4 periods) and the number of periods per simulation
+let asianarithmeticpayoff payoffFun nPeriod nDivision = 
+    fun assetPath -> 
+        let datePricingExceptLast = divideperiod nPeriod nDivision
+        let getRelevantPrices = List.init (datePricingExceptLast.Length) (fun x -> assetPath |> List.item(x))
+        let (relevantPrices:list<float>) = assetPath |> List.last |> List.singleton |> List.append getRelevantPrices
+        relevantPrices |> List.average |> payoffFun
 
 //Barriers
 //If two barrier, pass the whole function through this two times
@@ -76,10 +89,6 @@ let downbarrier barrier = fun x -> x < barrier
 (*                                          Asset Path Functions                                                *)
 (****************************************************************************************************************)
 
-let getrandomnormal nIter =
-    let norm = new Normal(0.0,5.0)
-    (Seq.take  nIter (norm.Samples())) |> Seq.toList
-
 let bachelierprocess nIter tmin tmax S0 rf sigma =
     let rnd = new Normal(0.0,1.0)
     let deltat = (tmax - tmin) / (float nIter)
@@ -91,7 +100,7 @@ let bachelierprocess nIter tmin tmax S0 rf sigma =
         | _ -> 
             let templist = List.append listacc ((S * (drift + sigmabar * rnd.Sample())) |> List.singleton )
             loop (templist |> List.last) (t+deltat) templist  
-    loop S0 0.0 List.Empty
+    loop S0 0.0 (S0 |> List.singleton)
 
 
 (****************************************************************************************************************)
@@ -117,6 +126,7 @@ let main argv =
     let KObarrierDown = 50.0            //Knock-out barrier down
     let tmin = 0.0
     let tmax = 1.0
+    let nDivision = 10                  //Number of periods to average for asian options
     
 
     //Underlying characteristics
@@ -126,7 +136,7 @@ let main argv =
 
     //Monte carlo settings
     let nPeriod = 100
-    let nSimul = 100000
+    let nSimul = 10000
     
 
     //Creating the paths
@@ -136,16 +146,26 @@ let main argv =
     let plainvanillacall = (callpayoff K) |> europeanoptionpayoff
     let plainvanillaput = (putpayoff K) |> europeanoptionpayoff
     
-    let KOPayoffMeanHoldAsset x = (x |> List.last) - S0                         //Knock-out = payoff of holding asset from inception
+    let KOPayoffMeanHoldAsset = underlyingpayoff                            //Knock-out = payoff of holding asset from inception
     let KOPayoff x = 0.0
     let callwithknockoutbarrier = barrier (upbarrier KObarrierUp) plainvanillacall KOPayoff
     let capitalprotectionwithknockoutbarrier = barrier (downbarrier KObarrierDown) plainvanillacall KOPayoffMeanHoldAsset
+    
+    let asiancall = asianarithmeticpayoff (callpayoff K) nPeriod nDivision
+    let asianput = asianarithmeticpayoff (putpayoff K) nPeriod nDivision
+
+    //Get Results
 
     printoptionvalue "plain vanilla call" (optionpricing plainvanillacall setOfPaths rf)
     printoptionvalue "plain vanilla put" (optionpricing plainvanillaput setOfPaths rf)
     printoptionvalue "plain vanilla call with knock-out up barrier (KO = 0 payoff)" (optionpricing callwithknockoutbarrier setOfPaths rf)
     printoptionvalue "capital protection with knock-out down barrier (KO = hold asset)" (optionpricing capitalprotectionwithknockoutbarrier setOfPaths rf)
+    printoptionvalue "Asian call" (optionpricing asiancall setOfPaths rf)
+    printoptionvalue "Asian put" (optionpricing asianput setOfPaths rf)
+    
 
-    (setOfPaths.Item 12) |> plot
+
+    //Uncomment to get plot of one trajectory
+    //(setOfPaths.Item 12) |> plot
         
     0 // retourne du code de sortie entier
