@@ -85,6 +85,16 @@ let barrier barrierfun payoffNoBarrier payoffBarrier =
 let upbarrier barrier = fun x -> x > barrier
 let downbarrier barrier = fun x -> x < barrier
 
+
+
+
+(****************************************************************************************************************)
+(*                                      Structured Product Functions                                            *)
+(****************************************************************************************************************)
+
+let participationcontract participationFactor payoffFun = 
+    fun assetPath -> participationFactor * (payoffFun assetPath)
+
 (****************************************************************************************************************)
 (*                                          Asset Path Functions                                                *)
 (****************************************************************************************************************)
@@ -122,11 +132,12 @@ let main argv =
     
     // Option characteristics
     let K = 55.0                        //Plain vanilla strike
-    let KObarrierUp = 70.0              //Knock-out barrier up
+    let KObarrierUp = 65.0              //Knock-out barrier up
     let KObarrierDown = 50.0            //Knock-out barrier down
     let tmin = 0.0
     let tmax = 1.0
     let nDivision = 10                  //Number of periods to average for asian options
+    let participationFactor = 0.4
     
 
     //Underlying characteristics
@@ -146,6 +157,8 @@ let main argv =
     let plainvanillacall = (callpayoff K) |> europeanoptionpayoff
     let plainvanillaput = (putpayoff K) |> europeanoptionpayoff
     
+    let participationcall = plainvanillacall |> participationcontract participationFactor
+
     let KOPayoffMeanHoldAsset = underlyingpayoff                            //Knock-out = payoff of holding asset from inception
     let KOPayoff x = 0.0
     let callwithknockoutbarrier = barrier (upbarrier KObarrierUp) plainvanillacall KOPayoff
@@ -154,15 +167,21 @@ let main argv =
     let asiancall = asianarithmeticpayoff (callpayoff K) nPeriod nDivision
     let asianput = asianarithmeticpayoff (putpayoff K) nPeriod nDivision
 
+    let doubleloose = barrier (downbarrier KObarrierDown) (barrier (upbarrier KObarrierUp) plainvanillacall asiancall) KOPayoffMeanHoldAsset
+
     //Get Results
 
     printoptionvalue "plain vanilla call" (optionpricing plainvanillacall setOfPaths rf)
     printoptionvalue "plain vanilla put" (optionpricing plainvanillaput setOfPaths rf)
+    printoptionvalue "participation contract (call)" (optionpricing participationcall setOfPaths rf)
     printoptionvalue "plain vanilla call with knock-out up barrier (KO = 0 payoff)" (optionpricing callwithknockoutbarrier setOfPaths rf)
     printoptionvalue "capital protection with knock-out down barrier (KO = hold asset)" (optionpricing capitalprotectionwithknockoutbarrier setOfPaths rf)
     printoptionvalue "Asian call" (optionpricing asiancall setOfPaths rf)
     printoptionvalue "Asian put" (optionpricing asianput setOfPaths rf)
-    
+    //I don't know if this type of asset exists, but what it does is: if you go below the bottom barrier, then your investment is lost
+    //else, if you go above the up barrier, your call becomes an Asian call, averaging high values with low values
+    //To have the full possibility of a call, the underlying must stay below these two barriers (and above the strike)
+    printoptionvalue "Strange kind of mixed-call (plain vanilla, then Asian above the knock-in barrier) with a knock-out barrier that gives the payoff of the asset" (optionpricing doubleloose setOfPaths rf)
 
 
     //Uncomment to get plot of one trajectory
