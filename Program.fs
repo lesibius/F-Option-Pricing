@@ -116,9 +116,9 @@ let bachelierprocess nIter tmin tmax S0 rf sigma =
 (*                                          Monte Carlo Pricing                                                 *)
 (****************************************************************************************************************)  
 
-let optionpricing payoffFun (setOfPaths:list<list<float>>) rf =
+let optionpricing payoffFun (setOfPaths:list<list<float>>) rf tmin tmax =
     let valuesatexpiry = setOfPaths |> List.map payoffFun
-    (valuesatexpiry |> List.average) * exp (-rf)
+    (valuesatexpiry |> List.average) * exp (-rf*(tmax - tmin))
   
 (****************************************************************************************************************)
 (*                                                  Main                                                        *)
@@ -170,17 +170,17 @@ let main argv =
 
     //Get Results
 
-    printoptionvalue "plain vanilla call" (optionpricing plainvanillacall setOfPaths rf)
-    printoptionvalue "plain vanilla put" (optionpricing plainvanillaput setOfPaths rf)
-    printoptionvalue "participation contract (call)" (optionpricing participationcall setOfPaths rf)
-    printoptionvalue "plain vanilla call with knock-out up barrier (KO = 0 payoff)" (optionpricing callwithknockoutbarrier setOfPaths rf)
-    printoptionvalue "capital protection with knock-out down barrier (KO = hold asset)" (optionpricing capitalprotectionwithknockoutbarrier setOfPaths rf)
-    printoptionvalue "Asian call" (optionpricing asiancall setOfPaths rf)
-    printoptionvalue "Asian put" (optionpricing asianput setOfPaths rf)
+    printoptionvalue "plain vanilla call" (optionpricing plainvanillacall setOfPaths rf tmin tmax)
+    printoptionvalue "plain vanilla put" (optionpricing plainvanillaput setOfPaths rf tmin tmax)
+    printoptionvalue "participation contract (call)" (optionpricing participationcall setOfPaths rf tmin tmax)
+    printoptionvalue "plain vanilla call with knock-out up barrier (KO = 0 payoff)" (optionpricing callwithknockoutbarrier setOfPaths rf tmin tmax)
+    printoptionvalue "capital protection with knock-out down barrier (KO = hold asset)" (optionpricing capitalprotectionwithknockoutbarrier setOfPaths rf tmin tmax)
+    printoptionvalue "Asian call" (optionpricing asiancall setOfPaths rf tmin tmax)
+    printoptionvalue "Asian put" (optionpricing asianput setOfPaths rf tmin tmax)
     //I don't know if this type of asset exists, but what it does is: if you go below the bottom barrier, then your investment is lost
     //else, if you go above the up barrier, your call becomes an Asian call, averaging high values with low values
     //To have the full possibility of a call, the underlying must stay below these two barriers (and above the strike)
-    printoptionvalue "Strange kind of mixed-call (plain vanilla, then Asian above the knock-in barrier) with a knock-out barrier that gives the payoff of the asset" (optionpricing doubleloose setOfPaths rf)
+    printoptionvalue "Strange kind of mixed-call (plain vanilla, then Asian above the knock-in barrier) with a knock-out barrier that gives the payoff of the asset" (optionpricing doubleloose setOfPaths rf tmin tmax)
 
 
     //Uncomment to get plot of one trajectory
