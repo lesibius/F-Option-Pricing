@@ -4,7 +4,6 @@
 
 open System
 open MathNet.Numerics.Distributions
-open MathNet.Numerics.Statistics
 open FSharp.Charting
 open FSharp.Charting.ChartTypes
 open System.Drawing
