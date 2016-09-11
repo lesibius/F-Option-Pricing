@@ -7,6 +7,9 @@
 <li> Remove the nPeriod and nDivision arguments and replace them with a list<int> of value to use to average prices
 <li> Use the previous point to allow pricing from a date which is not the init of the option
 
+### Miscellaneous
+<li> Add a function that allows to add payoff (e.g. addpayoff plainvanillacall plainvanillaput => create a straddle/strangle)
+
 ## Stochastic Processes
 
 ### Speeding-Up the Creation of setOfAssetPaths
