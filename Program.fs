@@ -137,6 +137,24 @@ let shiftedlognormalprocess nIter tmin tmax S0 rf sigma q =
     let drift = exp (rf * deltat)
 WIP *)
 
+let sabrprocess nIter tmin tmax S0 rf sigma0 alpha beta rho =
+    let rnd = new Normal(0.0,1.0)
+    let deltat = (tmax - tmin) / (float nIter)
+    let dS S sigma dV dW = S0 * ((S / S0) ** beta) * sigma * (rho * dV + (sqrt (1.0 - rho ** 2.0)) * dW)
+    let dSigma sigma dV = alpha * sigma * dV
+    let rec loop S sigma t listacc = 
+        match t with
+        | n when n > tmax -> listacc
+        | _ -> 
+            let dV = (sqrt deltat) * rnd.Sample()
+            let dW = (sqrt deltat) * rnd.Sample()
+            let dSigmaT = dSigma sigma dV
+            let sigmat = sigma + dSigmaT
+            let dSt = dS S sigmat dV dW
+            let St = S + dSt
+            loop St sigmat (t+deltat) (List.append listacc (St |> List.singleton))
+    loop S0 sigma0 tmin (S0 |> List.singleton)
+
 (****************************************************************************************************************)
 (*                                          Monte Carlo Pricing                                                 *)
 (****************************************************************************************************************)  
