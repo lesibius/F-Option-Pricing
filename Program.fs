@@ -16,7 +16,7 @@ open System.Windows.Forms
     
 let printoptionvalue optionName optionvalue =
     printfn "Value of %s" optionName
-    printfn "$%.2f" optionvalue
+    printfn "$%.4f" optionvalue
     printfn ""
 
 
@@ -110,7 +110,7 @@ let bachelierprocess nIter tmin tmax S0 rf sigma =
         | _ -> 
             let templist = List.append listacc ((S * (drift + sigmabar * rnd.Sample())) |> List.singleton )
             loop (templist |> List.last) (t+deltat) templist  
-    loop S0 0.0 (S0 |> List.singleton)
+    loop S0 tmin (S0 |> List.singleton)
 
 //Geometric brownian motion
 let blackscholeprocess nIter tmin tmax S0 rf sigma =
@@ -124,7 +124,7 @@ let blackscholeprocess nIter tmin tmax S0 rf sigma =
         | _ ->
             let templist = List.append listacc ((S * exp((rf - (sigma ** 2.0)/2.0) * deltat + sigmabar * rnd.Sample())) |> List.singleton)
             loop (templist |> List.last) (t+deltat) templist
-    loop S0 0.0 (S0 |> List.singleton)
+    loop S0 tmin (S0 |> List.singleton)
 
 
 //Shifted lognormal motion
@@ -136,6 +136,9 @@ let shiftedlognormalprocess nIter tmin tmax S0 rf sigma q =
     let sigmabar = sqrt(deltat) * sigma
     let drift = exp (rf * deltat)
 WIP *)
+
+
+//SABR Model (stochastic volatility)
 
 let sabrprocess nIter tmin tmax S0 rf sigma0 alpha beta rho =
     let rnd = new Normal(0.0,1.0)
@@ -154,7 +157,6 @@ let sabrprocess nIter tmin tmax S0 rf sigma0 alpha beta rho =
             let St = S + dSt
             loop St sigmat (t+deltat) (List.append listacc (St |> List.singleton))
     loop S0 sigma0 tmin (S0 |> List.singleton)
-
 (****************************************************************************************************************)
 (*                                          Monte Carlo Pricing                                                 *)
 (****************************************************************************************************************)  
@@ -178,23 +180,28 @@ let main argv =
     let KObarrierUp = 65.0              //Knock-out barrier up
     let KObarrierDown = 50.0            //Knock-out barrier down
     let tmin = 0.0
-    let tmax = 3.0 / 12.0
+    let tmax = 1.0
     let nDivision = 10                  //Number of periods to average for asian options
     let participationFactor = 0.4
     
 
     //Underlying characteristics
-    let rf = 0.01
+    let rf = 0.002
     let S0 = 60.0
-    let sigma = 0.2
+    let sigma = 0.1195
+
+    let alpha = 0.2
+    let beta = 1.0
+    let rho = -0.3
 
     //Monte carlo settings
-    let nPeriod = 100
+    let nPeriod = 300
     let nSimul = 10000
     
 
     //Creating the paths
-    let setOfPaths = (fun x -> blackscholeprocess nPeriod tmin tmax S0 rf sigma) |> List.init nSimul
+    let setOfPaths = (fun x -> bachelierprocess nPeriod tmin tmax S0 rf sigma) |> List.init nSimul
+    //let setOfPaths = (fun x -> sabrprocess nPeriod tmin tmax S0 rf sigma alpha beta rho) |> List.init nSimul
 
     //Defining payoffs
     let plainvanillacall = (callpayoff K) |> europeanoptionpayoff
