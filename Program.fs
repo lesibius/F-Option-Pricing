@@ -112,6 +112,13 @@ let bachelierprocess nIter tmin tmax S0 rf sigma =
             loop (templist |> List.last) (t+deltat) templist  
     loop S0 tmin (S0 |> List.singleton)
 
+let bachelierprocess2 nIter tmin tmax S0 rf sigma =
+    let rnd = new Normal(0.0,1.0)
+    let deltat = (tmax - tmin) / (float nIter)
+    let dS = fun x -> (exp (rf * deltat) - 1.0) + x * sqrt(deltat) * sigma
+    Array.append (S0 |> Array.singleton) (Array.scan (fun s ds -> s + s * ds) S0 (rnd.Samples()|> (Seq.take (nIter - 1)) |>  Seq.toArray |> (Array.map dS)))
+    
+
 //Geometric brownian motion
 let blackscholeprocess nIter tmin tmax S0 rf sigma =
     let rnd = new Normal(0.0,1.0)
