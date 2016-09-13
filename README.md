@@ -12,4 +12,9 @@ The generic steps to price an option are the following:
 
 The only goal that I set forth for myself was that the program should be only coded using functional programming features of F#. 
 
-In term of speed, the first version of this code used list<float> and was quite slow. The latest version use immutable arrays, although my own constraint forbided me to use immutability. It takes approximately 5 minutes to generate 100'000 trajectories of 1'000 asset prices (thus 100m points).
+In term of speed, the first version of this code used list<float> and was quite slow. The latest version use immutable arrays, although my own constraint forbad me to use this feature. It takes approximately 5 minutes to generate 100'000 trajectories of 1'000 asset prices (thus 100m points).
+
+For now, three models are available to price options:
+<li>The Bachelier process (arithmetic brownian motion)
+<li>The Black-Scholes process (geometric brownian motion)
+<li>The SABR model (stochastic volatility)
