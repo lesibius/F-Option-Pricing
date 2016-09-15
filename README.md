@@ -1,7 +1,11 @@
 # F#-Option-Pricing
 
 Monte-Carlo pricing with F#
+
 Author: Clémentin Castellano
+
+
+## Comments
 
 This code has been produced for self entertainment. It allows to price various options (plain vanilla, asian, barriers...), provided that the payoff can be viewed as a function of the underlying path.
 
@@ -18,3 +22,12 @@ For now, three models are available to price options:
 <li>The Bachelier process (arithmetic brownian motion)
 <li>The Black-Scholes process (geometric brownian motion)
 <li>The SABR model (stochastic volatility)
+
+## Latest Changes
+
+Initially, all functions were put in the same file. Functions are now located in different files for a matter of readability of the program.
+
+## Further Improvement
+
+In future versions, I would like to add an Excel module that would use a pre-formatted workbook to allow the user to change the parameters (strike, type, number of trajectories...) directly from Excel.
+
