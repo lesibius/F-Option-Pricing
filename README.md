@@ -27,7 +27,11 @@ For now, three models are available to price options:
 
 Initially, all functions were put in the same file. Functions are now located in different files for a matter of readability of the program.
 
+If you wish to test this application, it is advised to put the Util.fs file before other files in your Visual Studio environment.
+
 ## Further Improvement
 
 In future versions, I would like to add an Excel module that would use a pre-formatted workbook to allow the user to change the parameters (strike, type, number of trajectories...) directly from Excel.
+
+More comments will be added as the software grows.
 
