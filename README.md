@@ -7,7 +7,7 @@ Author: Clémentin Castellano
 
 ## Comments
 
-This code has been produced for self entertainment. It allows to price various options (plain vanilla, asian, barriers...), provided that the payoff can be viewed as a function of the underlying path.
+This code has been produced for self entertainment. It allows to price various options (plain vanilla, Asian, barriers...), provided that the payoff can be viewed as a function of the underlying path.
 
 The generic steps to price an option are the following:
 <li>Generate option payoffs. These variables have the following form: float [] -> float, where the float [] input represents the path of the underlying asset for one iteration and the float output is the derivative's value at expiry.
@@ -22,6 +22,8 @@ For now, three models are available to price options:
 <li>The Bachelier process (arithmetic brownian motion)
 <li>The Black-Scholes process (geometric brownian motion)
 <li>The SABR model (stochastic volatility)
+
+The SABR models currently contains an error as the spot price has been used instead of the future price. This will be corrected soon.
 
 ## Latest Changes
 
