@@ -65,7 +65,7 @@ module MainPricing =
     
     
 
-        let doubleloose = barrier (downbarrier KObarrierDown) (barrier (upbarrier KObarrierUp) plainvanillacall asiancall) KOPayoffMeanHoldAsset
+        let strangecall = barrier (downbarrier KObarrierDown) (barrier (upbarrier KObarrierUp) plainvanillacall asiancall) KOPayoffMeanHoldAsset
 
         //Get Results
 
@@ -79,7 +79,7 @@ module MainPricing =
         //I don't think this type of asset exists, but what it does is: if you go below the bottom barrier, then your investment is lost
         //else, if you go above the up barrier, your call becomes an Asian call, averaging high values with low values
         //To have the full possibility of a call, the underlying must stay below these two barriers (and above the strike)
-        printoptionvalue "strange kind of call" (optionpricing doubleloose setOfPaths rf tmin tmax)
+        printoptionvalue "strange kind of call" (optionpricing strangecall setOfPaths rf tmin tmax)
 
 
         //Uncomment to get plot of one trajectory
