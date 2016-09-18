@@ -21,9 +21,9 @@ In term of speed, the first version of this code used list<float> and was quite 
 For now, three models are available to price options:
 <li>The Bachelier process (arithmetic brownian motion)
 <li>The Black-Scholes process (geometric brownian motion)
-<li>The SABR model (stochastic volatility)
+<li>~~The SABR model (stochastic volatility)~~
 
-The SABR models currently contains an error as the spot price has been used instead of the future price. This will be corrected soon.
+(I noticed a slight mistake in the SABR model on which some work is necessary)
 
 ## Latest Changes
 
