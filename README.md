@@ -18,7 +18,7 @@ The only goal that I set forth for myself was that the program should be only co
 
 In term of speed, the first version of this code used list<float> and was quite slow. The latest version use immutable arrays, although my own constraint forbad me to use this feature. It takes approximately 5 minutes to generate 100'000 trajectories of 1'000 asset prices (thus 100m points) with an arithmetic brownian motion.
 
-For now, three models are available to price options:
+For now, ~~three~~ two models are available to price options:
 <li>The Bachelier process (arithmetic brownian motion)
 <li>The Black-Scholes process (geometric brownian motion)
 <li>~~The SABR model (stochastic volatility)~~
@@ -35,7 +35,7 @@ If you wish to test this application, it is advised to put the Util.fs file befo
 
 In future versions, I would like to add an Excel module that would use a pre-formatted workbook to allow the user to change the parameters (strike, type, number of trajectories...) directly from Excel.
 
-Another potentially interesting development would be to increase the computation speed. Although moving to float [] [] from list<list<float>> helped, it can be improved. As of today, I am considering implementing the path generation in Fortran. The main value added of F# remains its flexibility in defining the derivatives' payoff and keeping this part within F# while letting Fortran calculating the paths seems a good idea.
+Another potentially interesting development would be to increase the computation speed. Although moving to float [] [] from list\<list\<float\>\> helped, it can be improved. As of today, I am considering implementing the path generation in Fortran. The main value added of F# remains its flexibility in defining the derivatives' payoff and keeping this part within F# while letting Fortran calculating the paths seems a good idea.
 
 Some other motion are under consideration for addition, such as the Heston model, jump processes (e.g. the Bates model) or the Dupire model.
 
