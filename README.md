@@ -23,7 +23,7 @@ For now, ~~three~~ two models are available to price options:
 <li>The Black-Scholes process (geometric brownian motion)
 <li>~~The SABR model (stochastic volatility)~~
 
-(I noticed a slight mistake in the SABR model on which some work is necessary)
+I noticed a slight mistake in the SABR model on which some work is necessary. I will correct this later on as I need to go back to the literature to make sure my computations are correct.
 
 ## Latest Changes
 
@@ -32,6 +32,8 @@ Initially, all functions were put in the same file. Functions are now located in
 If you wish to test this application, it is advised to put the Util.fs file before other files in your Visual Studio environment.
 
 ## Further Improvement
+
+Paths' calibration is on-going.
 
 In future versions, I would like to add an Excel module that would use a pre-formatted workbook to allow the user to change the parameters (strike, type, number of trajectories...) directly from Excel.
 
